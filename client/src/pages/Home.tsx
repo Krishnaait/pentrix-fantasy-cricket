@@ -190,28 +190,28 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/matches"><a className="hover:text-foreground transition-colors">Matches</a></Link></li>
-                <li><Link href="/contests"><a className="hover:text-foreground transition-colors">Contests</a></Link></li>
-                <li><Link href="/my-teams"><a className="hover:text-foreground transition-colors">My Teams</a></Link></li>
+                <li><Link href="/matches" className="hover:text-foreground transition-colors">Matches</Link></li>
+                <li><Link href="/contests" className="hover:text-foreground transition-colors">Contests</Link></li>
+                <li><Link href="/my-teams" className="hover:text-foreground transition-colors">My Teams</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/how-to-play"><a className="hover:text-foreground transition-colors">How to Play</a></Link></li>
-                <li><Link href="/faqs"><a className="hover:text-foreground transition-colors">FAQs</a></Link></li>
-                <li><Link href="/about"><a className="hover:text-foreground transition-colors">About Us</a></Link></li>
+                <li><Link href="/how-to-play" className="hover:text-foreground transition-colors">How to Play</Link></li>
+                <li><Link href="/faqs" className="hover:text-foreground transition-colors">FAQs</Link></li>
+                <li><Link href="/about" className="hover:text-foreground transition-colors">About Us</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/terms"><a className="hover:text-foreground transition-colors">Terms of Service</a></Link></li>
-                <li><Link href="/privacy"><a className="hover:text-foreground transition-colors">Privacy Policy</a></Link></li>
-                <li><Link href="/responsible-gaming"><a className="hover:text-foreground transition-colors">Responsible Gaming</a></Link></li>
-                <li><Link href="/fair-play"><a className="hover:text-foreground transition-colors">Fair Play Policy</a></Link></li>
+                <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+                <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/responsible-gaming" className="hover:text-foreground transition-colors">Responsible Gaming</Link></li>
+                <li><Link href="/fair-play" className="hover:text-foreground transition-colors">Fair Play Policy</Link></li>
               </ul>
             </div>
           </div>

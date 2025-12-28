@@ -67,7 +67,7 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <Link href="/"><a className="inline-block mb-4"><img src="/logos/pentrix-logo-dark.png" alt="PENTRIX" className="h-10 mx-auto" /></a></Link>
+          <Link href="/" className="inline-block mb-4"><img src="/logos/pentrix-logo-dark.png" alt="PENTRIX" className="h-10 mx-auto" /></Link>
           <CardTitle className="text-2xl">Create Your Account</CardTitle>
           <CardDescription>Join PENTRIX and start playing fantasy cricket</CardDescription>
         </CardHeader>
@@ -93,7 +93,7 @@ export default function Register() {
             <div><Label htmlFor="confirmPassword">Confirm Password</Label><Input id="confirmPassword" type="password" required value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} placeholder="Re-enter password" /></div>
             <Button type="submit" className="w-full" disabled={registerMutation.isPending}>{registerMutation.isPending ? "Creating Account..." : "Create Account"}</Button>
           </form>
-          <div className="mt-6 text-center text-sm"><p className="text-muted-foreground">Already have an account? <Link href="/login"><a className="text-primary hover:underline font-medium">Login here</a></Link></p></div>
+          <div className="mt-6 text-center text-sm"><p className="text-muted-foreground">Already have an account? <Link href="/login" className="text-primary hover:underline font-medium">Login here</Link></p></div>
         </CardContent>
       </Card>
     </div>

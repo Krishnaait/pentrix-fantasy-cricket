@@ -9,7 +9,7 @@ export default function Leaderboard() {
     <div className="min-h-screen bg-muted/30">
       <header className="border-b bg-background">
         <div className="container flex h-16 items-center justify-between">
-          <Link href="/"><a><img src="/logos/pentrix-logo-dark.png" alt="PENTRIX" className="h-8" /></a></Link>
+          <Link href="/"><img src="/logos/pentrix-logo-dark.png" alt="PENTRIX" className="h-8" /></Link>
           <Link href="/contests"><Button variant="ghost">Back to Contests</Button></Link>
         </div>
       </header>

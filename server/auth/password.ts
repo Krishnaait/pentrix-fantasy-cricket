@@ -66,12 +66,6 @@ export function validatePasswordStrength(password: string): {
     };
   }
 
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    return {
-      isValid: false,
-      error: "Password must contain at least one special character",
-    };
-  }
-
+  // Special characters are optional for better user experience
   return { isValid: true };
 }
