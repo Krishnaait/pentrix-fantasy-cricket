@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info, CheckCircle2 } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export default function RefundPolicy() {
   return (
+    <>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
@@ -268,5 +270,8 @@ export default function RefundPolicy() {
         </div>
       </div>
     </div>
+  
+      <Footer />
+    </>
   );
 }

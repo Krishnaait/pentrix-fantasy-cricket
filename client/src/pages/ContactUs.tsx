@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export default function ContactUs() {
   const handleSubmit = (e: React.FormEvent) => {
@@ -13,6 +14,7 @@ export default function ContactUs() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
@@ -189,5 +191,8 @@ export default function ContactUs() {
         </div>
       </div>
     </div>
+  
+      <Footer />
+    </>
   );
 }

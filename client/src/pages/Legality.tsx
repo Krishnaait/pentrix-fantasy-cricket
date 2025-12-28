@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, XCircle, AlertTriangle, Scale } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export default function Legality() {
   const allowedStates = [
@@ -19,6 +20,7 @@ export default function Legality() {
   ];
 
   return (
+    <>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12">
@@ -212,5 +214,8 @@ export default function Legality() {
         </div>
       </div>
     </div>
+  
+      <Footer />
+    </>
   );
 }
