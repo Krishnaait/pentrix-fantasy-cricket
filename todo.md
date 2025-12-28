@@ -187,3 +187,17 @@
 - [x] Add Responsible Play section
 - [x] Add CTA (Call to Action) sections
 - [x] Test all sections with real data
+
+
+## Homepage API & Footer Fixes (2025-12-28)
+- [ ] Verify matches router endpoint is working correctly
+- [ ] Test CricketData API getCurrentMatches endpoint
+- [ ] Check match data structure and fields returned
+- [ ] Fix homepage to display all match details (teams, venue, date, time, status)
+- [ ] Add proper match type badges (T20, ODI, Test)
+- [ ] Display match scores for live and completed matches
+- [ ] Complete footer with all company information
+- [ ] Add all footer links (About, Contact, Support, etc.)
+- [ ] Add social media links to footer
+- [ ] Add registered office address details
+- [ ] Test all footer links are functional

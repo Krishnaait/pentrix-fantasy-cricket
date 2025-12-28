@@ -23,8 +23,8 @@ export const matchesRouter = router({
   getCurrentMatches: publicProcedure
     .input(
       z.object({
-        offset: z.number().default(0),
-      })
+        offset: z.number().optional().default(0),
+      }).optional().default({ offset: 0 })
     )
     .query(async ({ input }) => {
       try {
