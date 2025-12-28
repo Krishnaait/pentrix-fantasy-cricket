@@ -18,8 +18,27 @@ import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 export const matchesRouter = router({
   /**
+   * Get upcoming matches from active series
+   * This is the proper way to fetch truly upcoming matches
+   */
+  getUpcomingMatches: publicProcedure.query(async () => {
+    try {
+      const response = await cricketDataAPI.getUpcomingMatches();
+      return {
+        success: true,
+        matches: response.data,
+      };
+    } catch (error: any) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message || "Failed to fetch upcoming matches",
+      });
+    }
+  }),
+
+  /**
    * Get ALL matches (past, present, future)
-   * This endpoint returns matches from all series including upcoming ones
+   * Note: This endpoint returns mostly historical matches
    */
   getAllMatches: publicProcedure
     .input(

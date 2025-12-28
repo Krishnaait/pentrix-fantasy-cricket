@@ -214,3 +214,12 @@
 - [x] Fix upcoming matches not displaying on homepage
 - [x] Test with real API data
 - [x] Verify all match sections display correctly
+
+
+## Upcoming Matches Still Not Showing (2025-12-28)
+- [x] Test getAllMatches API endpoint directly
+- [x] Check if upcoming matches exist in API response
+- [x] Check frontend console for errors
+- [x] Verify data is being fetched and filtered correctly
+- [x] Fix any issues preventing display - implemented getUpcomingMatches using Series API
+- [x] Test and confirm upcoming matches are visible - 79 upcoming matches found

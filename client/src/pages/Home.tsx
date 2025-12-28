@@ -15,21 +15,17 @@ export default function Home() {
   // Fetch current matches for live/completed sections
   const { data: currentMatchesData, isLoading: isLoadingCurrent } = trpc.matches.getCurrentMatches.useQuery();
   
-  // Fetch all matches for upcoming section
-  const { data: allMatchesData, isLoading: isLoadingAll } = trpc.matches.getAllMatches.useQuery();
+  // Fetch upcoming matches from series
+  const { data: upcomingMatchesData, isLoading: isLoadingUpcoming } = trpc.matches.getUpcomingMatches.useQuery();
 
-  const isLoading = isLoadingCurrent || isLoadingAll;
+  const isLoading = isLoadingCurrent || isLoadingUpcoming;
 
   // Separate matches by status
   const liveMatches = currentMatchesData?.matches?.filter((m: any) => m.matchStarted && !m.matchEnded) || [];
   const completedMatches = currentMatchesData?.matches?.filter((m: any) => m.matchEnded) || [];
   
-  // Get upcoming matches from allMatches and sort by date
-  const upcomingMatches = (allMatchesData?.matches?.filter((m: any) => 
-    !m.matchStarted && !m.matchEnded
-  ) || []).sort((a: any, b: any) => 
-    new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime()
-  ).slice(0, 6); // Show only first 6 upcoming matches
+  // Get upcoming matches (already sorted by date from backend)
+  const upcomingMatches = upcomingMatchesData?.matches?.slice(0, 6) || []; // Show only first 6 upcoming matches
 
   const formatMatchType = (type: string) => {
     return type.toUpperCase();

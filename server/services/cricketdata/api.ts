@@ -68,10 +68,54 @@ export class CricketDataAPI {
 
   /**
    * 5b. Get ALL Matches - Get all matches (past, present, future)
-   * This is the correct endpoint for fetching upcoming matches
+   * Note: This endpoint returns mostly historical matches
    */
   async getAllMatches(offset: number = 0): Promise<MatchesListResponse> {
     return cricketDataClient.get<MatchesListResponse>("/matches", { offset });
+  }
+
+  /**
+   * 5c. Get Upcoming Matches - Fetch from active series
+   * This is the proper way to get truly upcoming matches
+   */
+  async getUpcomingMatches(): Promise<any> {
+    try {
+      // First, get list of active series
+      const seriesResponse = await this.getSeriesList(0);
+      const upcomingMatches: any[] = [];
+      
+      // Get matches from first 10 series (to avoid too many API calls)
+      const seriesToCheck = seriesResponse.data.slice(0, 10);
+      
+      for (const series of seriesToCheck) {
+        try {
+          // Get series info which includes matches
+          const seriesInfo = await this.getSeriesInfo(series.id);
+          
+          if (seriesInfo.data && seriesInfo.data.matchList) {
+            // Filter for future matches
+            const futureMatches = seriesInfo.data.matchList.filter((match: any) => {
+              const matchDate = new Date(match.dateTimeGMT);
+              return matchDate > new Date();
+            });
+            
+            upcomingMatches.push(...futureMatches);
+          }
+        } catch (error) {
+          console.error(`Failed to fetch series ${series.id}:`, error);
+        }
+      }
+      
+      // Sort by date and return
+      return {
+        data: upcomingMatches.sort((a, b) => 
+          new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime()
+        )
+      };
+    } catch (error) {
+      console.error('Failed to fetch upcoming matches:', error);
+      return { data: [] };
+    }
   }
 
   /**
