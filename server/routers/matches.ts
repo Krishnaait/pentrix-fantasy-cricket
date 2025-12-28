@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
-import { cricketDataAPI } from "../services/cricketdata";
+import * as cricketDataAPI from "../services/cricketdata/api";
 import { getDb } from "../db";
 import { matches, teams, players, matchSquads } from "../../drizzle/schema";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
@@ -188,7 +188,7 @@ export const matchesRouter = router({
     )
     .query(async ({ input }) => {
       try {
-        const response = await cricketDataAPI.getECricScore(input.matchId);
+        const response = await cricketDataAPI.getCricScore();
         return {
           success: true,
           score: response,

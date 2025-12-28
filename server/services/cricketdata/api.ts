@@ -1,266 +1,318 @@
-import { cricketDataClient } from "./client";
+import { cricketDataClient } from './client';
 import type {
   CurrentMatchesResponse,
   MatchInfoResponse,
+  SeriesInfoResponse,
   PlayersListResponse,
   FantasySquadResponse,
   FantasyScorecardResponse,
   FantasyMatchPointsResponse,
   SeriesListResponse,
-  SeriesInfoResponse,
   MatchesListResponse,
   SeriesPointTableResponse,
   CountryListResponse,
-} from "./types";
+} from './types';
 
 /**
  * CricketData.org API Service
+ * Complete implementation of all 16 production APIs
+ * Base URL: https://api.cricapi.com/v1/
  * 
- * Provides methods for all 18 CricketData APIs:
- * - Core Match APIs (Current Matches, Match Info, etc.)
- * - Fantasy APIs (Squad, Scorecard, Points)
- * - Series APIs (List, Info, Matches)
- * - Player APIs (List, Search, Info)
- * - Misc APIs (Country List, Point Table)
+ * All endpoint names match the official CricketData.org API documentation
  */
 
-export class CricketDataAPI {
-  /**
-   * 1. Current Matches - Get all ongoing and upcoming matches
-   * Top Used API
-   */
-  async getCurrentMatches(offset: number = 0): Promise<CurrentMatchesResponse> {
-    return cricketDataClient.get<CurrentMatchesResponse>("/currentMatches", { offset });
-  }
+// ============================================================================
+// LIST APIs (Top Used)
+// ============================================================================
 
-  /**
-   * 2. eCricScore - Get live cricket scores
-   * Top Used API - for real-time score updates
-   */
-  async getECricScore(matchId: string): Promise<any> {
-    return cricketDataClient.get("/cric_score", { id: matchId });
-  }
+/**
+ * API 1: Current Matches (Top Used)
+ * Endpoint: /currentMatches
+ * Returns list of current/recent matches with live scores
+ */
+export async function getCurrentMatches(offset: number = 0): Promise<CurrentMatchesResponse> {
+  return cricketDataClient.get<CurrentMatchesResponse>('/currentMatches', { offset });
+}
 
-  /**
-   * 3. Series Search - Search for cricket series
-   * New changes
-   */
-  async searchSeries(search: string, offset: number = 0): Promise<SeriesListResponse> {
-    return cricketDataClient.get<SeriesListResponse>("/series", { search, offset });
-  }
+/**
+ * API 2: eCricScore (Top Used)
+ * Endpoint: /cricScore
+ * Returns all live cricket scores across all matches
+ * No parameters needed except API key
+ */
+export async function getCricScore(): Promise<any> {
+  return cricketDataClient.get('/cricScore');
+}
 
-  /**
-   * 4. Series List - Get list of all series
-   */
-  async getSeriesList(offset: number = 0): Promise<SeriesListResponse> {
-    return cricketDataClient.get<SeriesListResponse>("/series", { offset });
-  }
+/**
+ * API 3: Series Search
+ * Endpoint: /series
+ * Search for series by name
+ */
+export async function searchSeries(searchTerm: string, offset: number = 0): Promise<SeriesListResponse> {
+  return cricketDataClient.get<SeriesListResponse>('/series', { search: searchTerm, offset });
+}
 
-  /**
-   * 5. Matches List - Get all matches in a series
-   */
-  async getMatchesList(seriesId: string, offset: number = 0): Promise<MatchesListResponse> {
-    return cricketDataClient.get<MatchesListResponse>("/series_info", { 
-      id: seriesId,
-      offset 
-    });
-  }
+/**
+ * API 4: Series List
+ * Endpoint: /series
+ * Get list of all cricket series
+ */
+export async function getSeriesList(offset: number = 0): Promise<SeriesListResponse> {
+  return cricketDataClient.get<SeriesListResponse>('/series', { offset });
+}
 
-  /**
-   * 5b. Get ALL Matches - Get all matches (past, present, future)
-   * Note: This endpoint returns mostly historical matches
-   */
-  async getAllMatches(offset: number = 0): Promise<MatchesListResponse> {
-    return cricketDataClient.get<MatchesListResponse>("/matches", { offset });
-  }
+/**
+ * API 5: Matches List
+ * Endpoint: /matches
+ * Get list of all matches (historical + current + upcoming)
+ */
+export async function getAllMatches(offset: number = 0): Promise<MatchesListResponse> {
+  return cricketDataClient.get<MatchesListResponse>('/matches', { offset });
+}
 
-  /**
-   * 5c. Get Upcoming Matches - Fetch from active series
-   * This is the proper way to get truly upcoming matches
-   */
-  async getUpcomingMatches(): Promise<any> {
-    try {
-      // First, get list of active series
-      const seriesResponse = await this.getSeriesList(0);
-      const upcomingMatches: any[] = [];
-      
-      // Get matches from first 10 series (to avoid too many API calls)
-      const seriesToCheck = seriesResponse.data.slice(0, 10);
-      
-      for (const series of seriesToCheck) {
-        try {
-          // Get series info which includes matches
-          const seriesInfo = await this.getSeriesInfo(series.id);
-          
-          if (seriesInfo.data && seriesInfo.data.matchList) {
-            // Filter for future matches
-            const futureMatches = seriesInfo.data.matchList.filter((match: any) => {
-              const matchDate = new Date(match.dateTimeGMT);
-              return matchDate > new Date();
-            });
-            
-            upcomingMatches.push(...futureMatches);
-          }
-        } catch (error) {
-          console.error(`Failed to fetch series ${series.id}:`, error);
-        }
-      }
-      
-      // Sort by date and return
-      return {
-        data: upcomingMatches.sort((a, b) => 
-          new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime()
-        )
-      };
-    } catch (error) {
-      console.error('Failed to fetch upcoming matches:', error);
-      return { data: [] };
-    }
-  }
+/**
+ * API 6: Players List
+ * Endpoint: /players
+ * Get list of all cricket players
+ */
+export async function getPlayersList(offset: number = 0): Promise<PlayersListResponse> {
+  return cricketDataClient.get<PlayersListResponse>('/players', { offset });
+}
 
-  /**
-   * 6. Players List - Get list of all players
-   */
-  async getPlayersList(offset: number = 0): Promise<PlayersListResponse> {
-    return cricketDataClient.get<PlayersListResponse>("/players", { offset });
-  }
+/**
+ * API 7: Players Search
+ * Endpoint: /players
+ * Search for players by name
+ */
+export async function searchPlayers(searchTerm: string, offset: number = 0): Promise<PlayersListResponse> {
+  return cricketDataClient.get<PlayersListResponse>('/players', { search: searchTerm, offset });
+}
 
-  /**
-   * 7. Players Search - Search for specific players
-   */
-  async searchPlayers(search: string, offset: number = 0): Promise<PlayersListResponse> {
-    return cricketDataClient.get<PlayersListResponse>("/players", { search, offset });
-  }
+// ============================================================================
+// CRICKET INFO APIs
+// ============================================================================
 
-  /**
-   * 8. Series Info - Get detailed series information
-   */
-  async getSeriesInfo(seriesId: string): Promise<SeriesInfoResponse> {
-    return cricketDataClient.get<SeriesInfoResponse>("/series_info", { id: seriesId });
-  }
+/**
+ * API 8: Series Info
+ * Endpoint: /series_info
+ * Get detailed information about a specific series including matches
+ */
+export async function getSeriesInfo(seriesId: string): Promise<SeriesInfoResponse> {
+  return cricketDataClient.get<SeriesInfoResponse>('/series_info', { id: seriesId });
+}
 
-  /**
-   * 9. Match Info - Get detailed match information
-   */
-  async getMatchInfo(matchId: string): Promise<MatchInfoResponse> {
-    return cricketDataClient.get<MatchInfoResponse>("/match_info", { id: matchId });
-  }
+/**
+ * API 9: Match Info
+ * Endpoint: /match_info
+ * Get detailed information about a specific match
+ */
+export async function getMatchInfo(matchId: string): Promise<MatchInfoResponse> {
+  return cricketDataClient.get<MatchInfoResponse>('/match_info', { id: matchId });
+}
 
-  /**
-   * 10. Player Info - Get detailed player information
-   * New changes
-   */
-  async getPlayerInfo(playerId: string): Promise<any> {
-    return cricketDataClient.get("/players_info", { id: playerId });
-  }
+/**
+ * API 10: Player Info
+ * Endpoint: /players_info
+ * Get detailed information about a specific player
+ */
+export async function getPlayerInfo(playerId: string): Promise<any> {
+  return cricketDataClient.get('/players_info', { id: playerId });
+}
 
-  /**
-   * 11. Fantasy Squad - Get fantasy squad for a match
-   * New changes - Critical for fantasy team creation
-   */
-  async getFantasySquad(matchId: string): Promise<FantasySquadResponse> {
-    return cricketDataClient.get<FantasySquadResponse>("/fantasy_squad", { id: matchId });
-  }
+// ============================================================================
+// FANTASY APIs
+// ============================================================================
 
-  /**
-   * 12. Series Squads - Get squads for all matches in a series
-   */
-  async getSeriesSquads(seriesId: string): Promise<any> {
-    return cricketDataClient.get("/series_squads", { id: seriesId });
-  }
+/**
+ * API 11: Fantasy Squad (Match Squad)
+ * Endpoint: /match_squad
+ * Get playing XI squad for fantasy cricket
+ * CRITICAL: This is the correct endpoint name (not /fantasy_squad)
+ */
+export async function getFantasySquad(matchId: string): Promise<FantasySquadResponse> {
+  return cricketDataClient.get<FantasySquadResponse>('/match_squad', { id: matchId });
+}
 
-  /**
-   * 13. Fantasy Scorecard - Get fantasy points scorecard
-   * Critical for live leaderboard updates
-   */
-  async getFantasyScorecard(matchId: string): Promise<FantasyScorecardResponse> {
-    return cricketDataClient.get<FantasyScorecardResponse>("/fantasy_scorecard", { 
-      id: matchId 
-    });
-  }
+/**
+ * API 12: Series Squads
+ * Endpoint: /series_squad
+ * Get all squads for a series
+ */
+export async function getSeriesSquads(seriesId: string): Promise<any> {
+  return cricketDataClient.get('/series_squad', { id: seriesId });
+}
 
-  /**
-   * 14. Fantasy Match Points - Get fantasy points for a match
-   * Critical for points calculation
-   */
-  async getFantasyMatchPoints(matchId: string): Promise<FantasyMatchPointsResponse> {
-    return cricketDataClient.get<FantasyMatchPointsResponse>("/fantasy_match_points", { 
-      id: matchId 
-    });
-  }
+/**
+ * API 13: Fantasy Scorecard
+ * Endpoint: /match_scorecard
+ * Get detailed scorecard with player performances
+ */
+export async function getFantasyScorecard(matchId: string): Promise<FantasyScorecardResponse> {
+  return cricketDataClient.get<FantasyScorecardResponse>('/match_scorecard', { id: matchId });
+}
 
-  /**
-   * 15. Series Point Table - Get points table for a series
-   */
-  async getSeriesPointTable(seriesId: string): Promise<SeriesPointTableResponse> {
-    return cricketDataClient.get<SeriesPointTableResponse>("/series_point_table", { 
-      id: seriesId 
-    });
-  }
+/**
+ * API 14: Fantasy Match Points
+ * Endpoint: /fantasy_match_points
+ * Get fantasy points for each player in the match
+ */
+export async function getFantasyMatchPoints(matchId: string): Promise<FantasyMatchPointsResponse> {
+  return cricketDataClient.get<FantasyMatchPointsResponse>('/fantasy_match_points', { id: matchId });
+}
 
-  /**
-   * 16. Fantasy XI - DO NOT USE (deprecated/not recommended)
-   */
-  // async getFantasyXI(matchId: string): Promise<any> {
-  //   // Deprecated - do not use
-  //   throw new Error("Fantasy XI API is deprecated. Use Fantasy Squad instead.");
-  // }
+/**
+ * API 15: Series Point Table
+ * Endpoint: /series_points
+ * Get points table for the series
+ * CRITICAL: Endpoint is /series_points (not /series_point_table)
+ */
+export async function getSeriesPoints(seriesId: string): Promise<SeriesPointTableResponse> {
+  return cricketDataClient.get<SeriesPointTableResponse>('/series_points', { id: seriesId });
+}
 
-  /**
-   * 17. Fantasy Ball-by-Ball - Get ball by ball fantasy points
-   * In testing phase - use with caution
-   */
-  async getFantasyBallByBall(matchId: string): Promise<any> {
-    console.warn("[CricketData] Fantasy Ball-by-Ball API is in testing phase");
-    return cricketDataClient.get("/fantasy_ball_by_ball", { id: matchId });
-  }
+// ============================================================================
+// MISC APIs
+// ============================================================================
 
-  /**
-   * 18. Country List - Get list of cricket playing countries
-   */
-  async getCountryList(): Promise<CountryListResponse> {
-    return cricketDataClient.get<CountryListResponse>("/countries");
-  }
+/**
+ * API 16: Country List
+ * Endpoint: /countries
+ * Get list of all cricket-playing countries
+ */
+export async function getCountries(): Promise<CountryListResponse> {
+  return cricketDataClient.get<CountryListResponse>('/countries');
+}
 
-  /**
-   * Helper: Get matches by status
-   */
-  async getMatchesByStatus(status: "live" | "upcoming" | "completed"): Promise<CurrentMatchesResponse> {
-    const response = await this.getCurrentMatches();
-    
-    if (status === "live") {
-      response.data = response.data.filter(m => m.matchStarted && !m.matchEnded);
-    } else if (status === "upcoming") {
-      response.data = response.data.filter(m => !m.matchStarted);
-    } else if (status === "completed") {
-      response.data = response.data.filter(m => m.matchEnded);
-    }
-    
-    return response;
-  }
+// ============================================================================
+// HELPER METHODS
+// ============================================================================
 
-  /**
-   * Helper: Get fantasy-enabled matches only
-   */
-  async getFantasyEnabledMatches(): Promise<CurrentMatchesResponse> {
-    const response = await this.getCurrentMatches();
-    response.data = response.data.filter(m => m.fantasyEnabled && m.hasSquad);
-    return response;
-  }
+/**
+ * Get only fantasy-enabled matches from current matches
+ */
+export async function getFantasyEnabledMatches(offset: number = 0): Promise<CurrentMatchesResponse> {
+  const response = await getCurrentMatches(offset);
+  return {
+    ...response,
+    data: response.data.filter(match => match.fantasyEnabled && match.hasSquad),
+  };
+}
 
-  /**
-   * Helper: Check if match is eligible for fantasy
-   */
-  async isMatchFantasyEligible(matchId: string): Promise<boolean> {
-    try {
-      const matchInfo = await this.getMatchInfo(matchId);
-      return matchInfo.data.fantasyEnabled && matchInfo.data.hasSquad && !matchInfo.data.matchStarted;
-    } catch (error) {
-      console.error(`[CricketData] Error checking fantasy eligibility for match ${matchId}:`, error);
-      return false;
-    }
+/**
+ * Check if a match is eligible for fantasy cricket
+ */
+export async function isMatchFantasyEligible(matchId: string): Promise<boolean> {
+  try {
+    const matchInfo = await getMatchInfo(matchId);
+    return matchInfo.data?.fantasyEnabled && matchInfo.data?.hasSquad && !matchInfo.data?.matchStarted;
+  } catch (error) {
+    console.error(`Error checking fantasy eligibility for match ${matchId}:`, error);
+    return false;
   }
 }
 
-// Singleton instance
-export const cricketDataAPI = new CricketDataAPI();
+/**
+ * Get upcoming matches from series
+ * Fetches active series and filters for matches with future dates
+ * This is the CORRECT way to get truly upcoming matches
+ */
+export async function getUpcomingMatches(limit: number = 50): Promise<CurrentMatchesResponse> {
+  try {
+    // Get active series
+    const seriesResponse = await getSeriesList(0);
+    const upcomingMatches: any[] = [];
+    const now = new Date();
+
+    // Fetch matches from first 10 series to avoid too many API calls
+    for (const series of seriesResponse.data.slice(0, 10)) {
+      try {
+        const seriesInfo = await getSeriesInfo(series.id);
+        
+        if (seriesInfo.data?.matchList) {
+          const futureMatches = seriesInfo.data.matchList
+            .filter((match: any) => {
+              const matchDate = new Date(match.dateTimeGMT);
+              return matchDate > now;
+            })
+            .map((match: any) => ({
+              ...match,
+              series_id: series.id,
+            }));
+          
+          upcomingMatches.push(...futureMatches);
+        }
+
+        // Stop if we have enough matches
+        if (upcomingMatches.length >= limit) break;
+      } catch (error) {
+        console.error(`Error fetching series ${series.id}:`, error);
+        continue;
+      }
+    }
+
+    // Sort by date and limit
+    const sortedMatches = upcomingMatches
+      .sort((a, b) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())
+      .slice(0, limit);
+
+    return {
+      apikey: seriesResponse.apikey,
+      data: sortedMatches,
+      status: 'success',
+      info: {
+        hitsToday: 0,
+        hitsUsed: 0,
+        hitsLimit: 0,
+        credits: 0,
+        server: 0,
+        offsetRows: 0,
+        totalRows: sortedMatches.length,
+        queryTime: 0,
+        s: 0,
+        cache: 0,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching upcoming matches:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get live matches only
+ */
+export async function getLiveMatches(offset: number = 0): Promise<CurrentMatchesResponse> {
+  const response = await getCurrentMatches(offset);
+  return {
+    ...response,
+    data: response.data.filter(match => match.matchStarted && !match.matchEnded),
+  };
+}
+
+/**
+ * Get completed matches only
+ */
+export async function getCompletedMatches(offset: number = 0): Promise<CurrentMatchesResponse> {
+  const response = await getCurrentMatches(offset);
+  return {
+    ...response,
+    data: response.data.filter(match => match.matchEnded),
+  };
+}
+
+/**
+ * Get matches by status
+ */
+export async function getMatchesByStatus(
+  status: 'live' | 'upcoming' | 'completed',
+  offset: number = 0
+): Promise<CurrentMatchesResponse> {
+  if (status === 'upcoming') {
+    return getUpcomingMatches();
+  } else if (status === 'live') {
+    return getLiveMatches(offset);
+  } else {
+    return getCompletedMatches(offset);
+  }
+}
