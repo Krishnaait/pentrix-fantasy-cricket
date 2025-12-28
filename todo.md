@@ -201,3 +201,16 @@
 - [ ] Add social media links to footer
 - [ ] Add registered office address details
 - [ ] Test all footer links are functional
+
+
+## Upcoming Matches Bug Fix (2025-12-28)
+- [x] Investigate API response structure for match status
+- [x] Check filtering logic for upcoming matches
+- [x] Login to CricketData.org and check API documentation
+- [x] Test different API endpoints for upcoming matches
+- [x] Update CRICKETDATA_API_KEY to use paid key (1a822521-d7e0-46ff-98d3-3e51020863f3)
+- [x] Add getAllMatches endpoint to backend router using /v1/matches
+- [x] Implement proper upcoming matches fetching
+- [x] Fix upcoming matches not displaying on homepage
+- [x] Test with real API data
+- [x] Verify all match sections display correctly

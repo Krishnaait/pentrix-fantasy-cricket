@@ -12,12 +12,24 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const { data: matchesData, isLoading } = trpc.matches.getCurrentMatches.useQuery();
+  // Fetch current matches for live/completed sections
+  const { data: currentMatchesData, isLoading: isLoadingCurrent } = trpc.matches.getCurrentMatches.useQuery();
+  
+  // Fetch all matches for upcoming section
+  const { data: allMatchesData, isLoading: isLoadingAll } = trpc.matches.getAllMatches.useQuery();
+
+  const isLoading = isLoadingCurrent || isLoadingAll;
 
   // Separate matches by status
-  const liveMatches = matchesData?.matches?.filter((m: any) => m.matchStarted && !m.matchEnded) || [];
-  const upcomingMatches = matchesData?.matches?.filter((m: any) => !m.matchStarted) || [];
-  const completedMatches = matchesData?.matches?.filter((m: any) => m.matchEnded) || [];
+  const liveMatches = currentMatchesData?.matches?.filter((m: any) => m.matchStarted && !m.matchEnded) || [];
+  const completedMatches = currentMatchesData?.matches?.filter((m: any) => m.matchEnded) || [];
+  
+  // Get upcoming matches from allMatches and sort by date
+  const upcomingMatches = (allMatchesData?.matches?.filter((m: any) => 
+    !m.matchStarted && !m.matchEnded
+  ) || []).sort((a: any, b: any) => 
+    new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime()
+  ).slice(0, 6); // Show only first 6 upcoming matches
 
   const formatMatchType = (type: string) => {
     return type.toUpperCase();

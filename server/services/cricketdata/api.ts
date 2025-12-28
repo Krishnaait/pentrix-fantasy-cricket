@@ -67,6 +67,14 @@ export class CricketDataAPI {
   }
 
   /**
+   * 5b. Get ALL Matches - Get all matches (past, present, future)
+   * This is the correct endpoint for fetching upcoming matches
+   */
+  async getAllMatches(offset: number = 0): Promise<MatchesListResponse> {
+    return cricketDataClient.get<MatchesListResponse>("/matches", { offset });
+  }
+
+  /**
    * 6. Players List - Get list of all players
    */
   async getPlayersList(offset: number = 0): Promise<PlayersListResponse> {

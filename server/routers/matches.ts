@@ -18,6 +18,32 @@ import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 export const matchesRouter = router({
   /**
+   * Get ALL matches (past, present, future)
+   * This endpoint returns matches from all series including upcoming ones
+   */
+  getAllMatches: publicProcedure
+    .input(
+      z.object({
+        offset: z.number().optional().default(0),
+      }).optional().default({ offset: 0 })
+    )
+    .query(async ({ input }) => {
+      try {
+        const response = await cricketDataAPI.getAllMatches(input.offset);
+        return {
+          success: true,
+          matches: response.data,
+          info: response.info,
+        };
+      } catch (error: any) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message || "Failed to fetch all matches",
+        });
+      }
+    }),
+
+  /**
    * Get all current matches (live + upcoming)
    */
   getCurrentMatches: publicProcedure
