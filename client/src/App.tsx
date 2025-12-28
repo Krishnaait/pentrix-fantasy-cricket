@@ -15,6 +15,9 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ResponsibleGaming from "./pages/ResponsibleGaming";
 import FairPlay from "./pages/FairPlay";
+import Legality from "./pages/Legality";
+import RefundPolicy from "./pages/RefundPolicy";
+import ContactUs from "./pages/ContactUs";
 
 // Auth pages
 import Register from "./pages/Register";
@@ -51,6 +54,9 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/responsible-gaming" component={ResponsibleGaming} />
       <Route path="/fair-play" component={FairPlay} />
+      <Route path="/legality" component={Legality} />
+      <Route path="/refund-policy" component={RefundPolicy} />
+      <Route path="/contact" component={ContactUs} />
 
       {/* Auth pages */}
       <Route path="/register" component={Register} />
