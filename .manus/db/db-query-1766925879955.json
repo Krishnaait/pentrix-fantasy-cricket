@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE users \nADD COLUMN passwordHash VARCHAR(255) NOT NULL DEFAULT '',\nADD COLUMN dateOfBirth TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\nADD COLUMN age INT NOT NULL DEFAULT 18,\nADD COLUMN state VARCHAR(100),\nADD COLUMN isAgeVerified BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN isGeoVerified BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN isActive BOOLEAN NOT NULL DEFAULT TRUE;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2BvVNGhJg8yP5rt.0c1ca658e18c --database 29PB6jayuCUEtdw7k6gs6V --execute ALTER TABLE users \nADD COLUMN passwordHash VARCHAR(255) NOT NULL DEFAULT '',\nADD COLUMN dateOfBirth TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\nADD COLUMN age INT NOT NULL DEFAULT 18,\nADD COLUMN state VARCHAR(100),\nADD COLUMN isAgeVerified BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN isGeoVerified BOOLEAN NOT NULL DEFAULT FALSE,\nADD COLUMN isActive BOOLEAN NOT NULL DEFAULT TRUE;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 3358
+}
