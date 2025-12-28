@@ -264,9 +264,16 @@
 
 
 ## Fix Upcoming Matches Data Display (2025-12-28)
-- [ ] Investigate CricketData API response for upcoming matches
-- [ ] Check if matches have future dates but are marked as matchStarted
-- [ ] Adjust filtering logic to show truly upcoming matches
-- [ ] Test with real API data
-- [ ] Verify upcoming matches section displays correctly on homepage
+- [x] Investigate CricketData API response for upcoming matches
+- [x] Check if matches have future dates but are marked as matchStarted
+- [x] Found that /matches endpoint doesn't contain near-future matches
+- [x] Discovered upcoming matches exist in Series Info API (series_info endpoint)
+- [x] Found SA20 2025-26 series has matches on Dec 29-31, 2025
+- [x] Rewrite getUpcomingMatches() to use Series Info API approach
+- [x] Fetch active series from /series endpoint
+- [x] Get matchList from /series_info for each active series
+- [x] Filter for matchStarted: false, matchEnded: false, future dates
+- [x] Test with real API data - 10 upcoming matches returned
+- [x] Verify upcoming matches section displays correctly on homepage - 6 matches showing Dec 29-31
+- [x] All tests passing (11/11)
 - [ ] Create checkpoint

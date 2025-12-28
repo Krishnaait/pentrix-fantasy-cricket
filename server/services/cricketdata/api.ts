@@ -213,31 +213,53 @@ export async function isMatchFantasyEligible(matchId: string): Promise<boolean> 
 }
 
 /**
- * Get upcoming matches
- * Uses /v1/matches endpoint which contains ALL matches (past, current, and future)
- * Filters for matches that haven't started yet and have future dates
- * IMPORTANT: Fetches multiple pages since upcoming matches may be at higher offsets
+ * Get upcoming matches from active series
+ * Uses Series Info API which contains the most accurate upcoming match data
+ * This is the CORRECT approach as recommended by CricketData.org
  */
 export async function getUpcomingMatches(limit: number = 50): Promise<CurrentMatchesResponse> {
   try {
     const now = new Date();
+    const allUpcomingMatches: any[] = [];
     
-    // Fetch two pages in parallel: offset 0 and offset 50
-    // This captures both recent and future matches efficiently
-    const [response1, response2] = await Promise.all([
-      getAllMatches(0).catch(() => ({ data: [], status: 'error' as const, apikey: '', info: {} as any })),
-      getAllMatches(50).catch(() => ({ data: [], status: 'error' as const, apikey: '', info: {} as any })),
-    ]);
+    // Step 1: Get active series (series that are currently ongoing)
+    const seriesResponse = await getSeriesList(0);
     
-    // Combine all matches from both pages
-    const allMatches = [...response1.data, ...response2.data];
-    
-    // Filter for truly upcoming matches
-    const allUpcomingMatches = allMatches.filter((match: any) => {
-      if (!match.dateTimeGMT) return false;
-      const matchDate = new Date(match.dateTimeGMT);
-      return matchDate > now && !match.matchStarted && !match.matchEnded;
+    // Step 2: Filter for series that are currently active (started but not ended)
+    const activeSeries = seriesResponse.data.filter((series: any) => {
+      if (!series.startDate) return false;
+      const startDate = new Date(series.startDate);
+      // Series is active if it started before or on today
+      return startDate <= now;
     });
+    
+    // Step 3: Get matches from first 10 active series (to avoid too many API calls)
+    const seriesToCheck = activeSeries.slice(0, 10);
+    
+    for (const series of seriesToCheck) {
+      try {
+        const seriesInfo = await getSeriesInfo(series.id);
+        
+        if (seriesInfo.data?.matchList) {
+          // Filter for upcoming matches in this series
+          const upcomingInSeries = seriesInfo.data.matchList.filter((match: any) => {
+            if (!match.dateTimeGMT) return false;
+            const matchDate = new Date(match.dateTimeGMT);
+            return matchDate > now && !match.matchStarted && !match.matchEnded;
+          });
+          
+          allUpcomingMatches.push(...upcomingInSeries);
+          
+          // Stop if we have enough matches
+          if (allUpcomingMatches.length >= limit) {
+            break;
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching series info for ${series.id}:`, error);
+        continue;
+      }
+    }
 
     // Sort by date ascending and limit
     const sortedMatches = allUpcomingMatches
