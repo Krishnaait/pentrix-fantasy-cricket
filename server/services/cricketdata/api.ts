@@ -213,51 +213,43 @@ export async function isMatchFantasyEligible(matchId: string): Promise<boolean> 
 }
 
 /**
- * Get upcoming matches from series
- * Fetches active series and filters for matches with future dates
- * This is the CORRECT way to get truly upcoming matches
+ * Get upcoming matches
+ * Uses /v1/matches endpoint which contains ALL matches (past, current, and future)
+ * Filters for matches that haven't started yet and have future dates
+ * IMPORTANT: Fetches multiple pages since upcoming matches may be at higher offsets
  */
 export async function getUpcomingMatches(limit: number = 50): Promise<CurrentMatchesResponse> {
   try {
-    // Get active series
-    const seriesResponse = await getSeriesList(0);
-    const upcomingMatches: any[] = [];
     const now = new Date();
+    
+    // Fetch two pages in parallel: offset 0 and offset 50
+    // This captures both recent and future matches efficiently
+    const [response1, response2] = await Promise.all([
+      getAllMatches(0).catch(() => ({ data: [], status: 'error' as const, apikey: '', info: {} as any })),
+      getAllMatches(50).catch(() => ({ data: [], status: 'error' as const, apikey: '', info: {} as any })),
+    ]);
+    
+    // Combine all matches from both pages
+    const allMatches = [...response1.data, ...response2.data];
+    
+    // Filter for truly upcoming matches
+    const allUpcomingMatches = allMatches.filter((match: any) => {
+      if (!match.dateTimeGMT) return false;
+      const matchDate = new Date(match.dateTimeGMT);
+      return matchDate > now && !match.matchStarted && !match.matchEnded;
+    });
 
-    // Fetch matches from first 10 series to avoid too many API calls
-    for (const series of seriesResponse.data.slice(0, 10)) {
-      try {
-        const seriesInfo = await getSeriesInfo(series.id);
-        
-        if (seriesInfo.data?.matchList) {
-          const futureMatches = seriesInfo.data.matchList
-            .filter((match: any) => {
-              const matchDate = new Date(match.dateTimeGMT);
-              return matchDate > now;
-            })
-            .map((match: any) => ({
-              ...match,
-              series_id: series.id,
-            }));
-          
-          upcomingMatches.push(...futureMatches);
-        }
-
-        // Stop if we have enough matches
-        if (upcomingMatches.length >= limit) break;
-      } catch (error) {
-        console.error(`Error fetching series ${series.id}:`, error);
-        continue;
-      }
-    }
-
-    // Sort by date and limit
-    const sortedMatches = upcomingMatches
-      .sort((a, b) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())
+    // Sort by date ascending and limit
+    const sortedMatches = allUpcomingMatches
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a.dateTimeGMT).getTime();
+        const dateB = new Date(b.dateTimeGMT).getTime();
+        return dateA - dateB;
+      })
       .slice(0, limit);
 
     return {
-      apikey: seriesResponse.apikey,
+      apikey: '',
       data: sortedMatches,
       status: 'success',
       info: {
@@ -273,9 +265,28 @@ export async function getUpcomingMatches(limit: number = 50): Promise<CurrentMat
         cache: 0,
       },
     };
-  } catch (error) {
-    console.error('Error fetching upcoming matches:', error);
-    throw error;
+  } catch (error: any) {
+    console.error('Error fetching upcoming matches:', {
+      message: error.message || 'Unknown error',
+    });
+    // Return empty array instead of throwing
+    return {
+      apikey: '',
+      data: [],
+      status: 'success',
+      info: {
+        hitsToday: 0,
+        hitsUsed: 0,
+        hitsLimit: 0,
+        credits: 0,
+        server: 0,
+        offsetRows: 0,
+        totalRows: 0,
+        queryTime: 0,
+        s: 0,
+        cache: 0,
+      },
+    };
   }
 }
 
